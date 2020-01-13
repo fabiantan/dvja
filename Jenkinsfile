@@ -24,11 +24,6 @@ pipeline {
       dependencyCheckPublisher pattern: ''
       }
     }
-    stage('Scan for vulnerabilities') {
-     steps {
-        sh 'java -jar dvja-1.0-SNAPSHOT.war && zap-cli quick-scan --self-contained --spider -r http://127.0.0.1 && zap-cli report -o zap-report.html -f html'
-     }
-    }
     stage('Analysis') {
       steps {
         sh "mvn --batch-mode -V -U -e checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs"
@@ -44,5 +39,15 @@ pipeline {
         cleanWs()
       }
     }
+    post {
+    	always {
+      	      recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+	      recordIssues enabledForFailure: true, tool: checkStyle()
+	      recordIssues enabledForFailure: true, tool: spotBugs()
+      	      recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
+	      recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
+    }
+  }
+
   }
 }
