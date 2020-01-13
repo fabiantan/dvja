@@ -13,8 +13,8 @@ pipeline {
       }
     }
     stage('Check dependencies') {
-      dependencyCheckPublisher pattern: ''
       steps {
+      dependencyCheckPublisher pattern: ''
       dependencyCheck additionalArguments: '', odcInstallation: 'Dependency-Check'
       }
     }
